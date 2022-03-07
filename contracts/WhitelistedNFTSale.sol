@@ -8,7 +8,6 @@ import "@openzeppelin/contracts/utils/math/Math.sol";
 import "./interfaces/IMeritMintableNFT.sol";
 
 contract WhitelistedNFTSale is AccessControlEnumerable {
-
     error ZeroMintError();
     error SaleNotStartedError();
     error SaleEndedError();
@@ -38,20 +37,19 @@ contract WhitelistedNFTSale is AccessControlEnumerable {
     mapping(address => uint256) public userBought;
     bytes32 public merkleRoot; //set to bytes32(type(uint256).max) to remove whitelist
 
-    modifier onlyMerkleRootSetter {
-        if(!hasRole(MERKLE_ROOT_SETTER_ROLE, msg.sender)) {
+    modifier onlyMerkleRootSetter() {
+        if (!hasRole(MERKLE_ROOT_SETTER_ROLE, msg.sender)) {
             revert OnlyMerkleRootSetterError();
         }
         _;
     }
 
-    modifier onlyFundsClaimer {
-        if(!hasRole(FUNDS_CLAIMER_ROLE, msg.sender)) {
+    modifier onlyFundsClaimer() {
+        if (!hasRole(FUNDS_CLAIMER_ROLE, msg.sender)) {
             revert OnlyFundsClaimerError();
         }
         _;
     }
-
 
     /// @notice constructor
     /// @param _merkleRoot merkle root
@@ -71,24 +69,23 @@ contract WhitelistedNFTSale is AccessControlEnumerable {
         uint256 _capPerUser,
         uint256 _price,
         uint256 _idOffset
-        
     ) {
-        if(_startTime > _endTime) {
+        if (_startTime > _endTime) {
             revert ConstructorParamError("_startTime > _endTime");
         }
-        if(_endTime < block.timestamp) {
+        if (_endTime < block.timestamp) {
             revert ConstructorParamError("_endTime < block.timestamp");
         }
-        if(_NFT == address(0)) {
+        if (_NFT == address(0)) {
             revert ConstructorParamError("_NFT == address(0)");
         }
-        if(_saleCap == 0) {
+        if (_saleCap == 0) {
             revert ConstructorParamError("_saleCap == 0");
         }
-        if(_capPerUser == 0) {
+        if (_capPerUser == 0) {
             revert ConstructorParamError("_capPerUser == 0");
         }
-        if(_price == 0) {
+        if (_price == 0) {
             revert ConstructorParamError("_price == 0");
         }
 
@@ -112,7 +109,7 @@ contract WhitelistedNFTSale is AccessControlEnumerable {
 
     /// @notice Claim funds received from the sale
     /// @param _receiver address receiving the funds
-    function claimFunds(address _receiver) external onlyFundsClaimer() {
+    function claimFunds(address _receiver) external onlyFundsClaimer {
         payable(_receiver).transfer(address(this).balance);
     }
 
@@ -120,35 +117,39 @@ contract WhitelistedNFTSale is AccessControlEnumerable {
     /// @param _amount amount of nfts to buy
     /// @param _receiver address receiving the bought nfts
     /// @param _proof merkle proof confirming inclusion in the whitelist
-    function buy(uint256 _amount, address _receiver, bytes32[] calldata _proof) external payable {
-        if(startTime > block.timestamp) {
+    function buy(
+        uint256 _amount,
+        address _receiver,
+        bytes32[] calldata _proof
+    ) external payable {
+        if (startTime > block.timestamp) {
             revert SaleNotStartedError();
         }
-        if(endTime < block.timestamp) {
+        if (endTime < block.timestamp) {
             revert SaleEndedError();
         }
 
         // mint max what's left or max mint per user
         uint256 amount = _amount.min(saleCap - totalSold).min(capPerUser - userBought[msg.sender]);
 
-        if(amount == 0) {
+        if (amount == 0) {
             revert ZeroMintError();
         }
-        
+
         // TODO custom errors
         uint256 totalEthRequired = amount * price;
 
-        if(totalEthRequired > msg.value) {
+        if (totalEthRequired > msg.value) {
             revert InsufficientETHError();
         }
- 
+
         // If merkle root is 0xfffff...ffffff whitelist check is skipped
-        if(merkleRoot != bytes32(type(uint256).max)) {
+        if (merkleRoot != bytes32(type(uint256).max)) {
             bytes32 leaf = keccak256(abi.encodePacked(msg.sender)); // we only check if an address is in the merkle tree;
-            if(!MerkleProof.verify(_proof, merkleRoot, leaf)) {
+            if (!MerkleProof.verify(_proof, merkleRoot, leaf)) {
                 revert MerkleProofVerificationError();
             }
-        }        
+        }
 
         // reading totalSold once to save on storage writes
         uint256 nextId = totalSold + idOffset;
@@ -158,15 +159,14 @@ contract WhitelistedNFTSale is AccessControlEnumerable {
 
         // External calls at the end of the function
         // mint NFTS
-        for(uint256 i = 0; i < amount; i ++) {
+        for (uint256 i = 0; i < amount; i++) {
             NFT.mint(nextId, _receiver);
-            nextId ++;
+            nextId++;
         }
 
         // return excess ETH
-        if(msg.value > totalEthRequired) {
+        if (msg.value > totalEthRequired) {
             payable(msg.sender).transfer(msg.value - totalEthRequired);
         }
     }
-
 }

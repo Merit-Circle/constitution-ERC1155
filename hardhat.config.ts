@@ -6,7 +6,7 @@ import "@nomiclabs/hardhat-etherscan";
 
 import "./tasks/accounts";
 
-if(!process.env.COMPILE_ONLY) {
+if (!process.env.COMPILE_ONLY) {
   require("./tasks/deploy");
 }
 
@@ -101,8 +101,8 @@ const config: HardhatUserConfig = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_KEY
-  }
+    apiKey: process.env.ETHERSCAN_KEY,
+  },
 };
 
 export default config;

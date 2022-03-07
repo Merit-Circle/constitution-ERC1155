@@ -9,7 +9,7 @@ contract View {
 
         IERC721 nft = IERC721(_nft);
 
-        for(uint256 i = 0; i < result.length; i ++) {
+        for (uint256 i = 0; i < result.length; i++) {
             try nft.ownerOf(_tokenIds[i]) {
                 result[i] = true;
             } catch {

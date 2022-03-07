@@ -9,7 +9,6 @@ import "./MeritNFT.sol";
 error MerkleSetterError();
 
 contract MeritNFTDropFactory {
-
     error MerkleProofError();
 
     struct MerkleTree {
@@ -20,9 +19,9 @@ contract MeritNFTDropFactory {
     mapping(address => address) public NFTMerkleSetter;
     mapping(address => MerkleTree) public NFTMerkleTree;
     IMeritMintableNFT[] public NFTs;
-    
+
     modifier onlyMerkleSetter(address _NFT) {
-        if(NFTMerkleSetter[_NFT] != msg.sender) {
+        if (NFTMerkleSetter[_NFT] != msg.sender) {
             revert MerkleSetterError();
         }
         _;
@@ -46,22 +45,15 @@ contract MeritNFTDropFactory {
         bytes32 _merkleRoot,
         string memory _merkleIpfsHash,
         bool _immutable
-    ) external returns(address) {
+    ) external returns (address) {
         // TODO consider using a transparant proxy to bring down gas cost
-        MeritNFT NFT = new MeritNFT(
-            _name,
-            _symbol,
-            _baseTokenURI
-        );
-        
+        MeritNFT NFT = new MeritNFT(_name, _symbol, _baseTokenURI);
+
         NFT.grantRole(NFT.MINTER_ROLE(), address(this));
-        NFTMerkleTree[address(NFT)] = MerkleTree({
-            root: _merkleRoot,
-            ipfsHash: _merkleIpfsHash
-        });
+        NFTMerkleTree[address(NFT)] = MerkleTree({ root: _merkleRoot, ipfsHash: _merkleIpfsHash });
 
         // If non immutable, set the NFT admin and allow the merkle root to be updated
-        if(!_immutable) {
+        if (!_immutable) {
             NFT.grantRole(NFT.DEFAULT_ADMIN_ROLE(), msg.sender);
             NFTMerkleSetter[address(NFT)] = msg.sender;
         }
@@ -79,11 +71,8 @@ contract MeritNFTDropFactory {
         address _NFT,
         bytes32 _merkleRoot,
         string memory _merkleIpfsHash
-    ) onlyMerkleSetter(_NFT) external {
-        NFTMerkleTree[_NFT] = MerkleTree({
-            root: _merkleRoot,
-            ipfsHash: _merkleIpfsHash
-        });
+    ) external onlyMerkleSetter(_NFT) {
+        NFTMerkleTree[_NFT] = MerkleTree({ root: _merkleRoot, ipfsHash: _merkleIpfsHash });
 
         emit MerkleTreeUpdated(_NFT, _merkleRoot, _merkleIpfsHash);
     }
@@ -91,7 +80,7 @@ contract MeritNFTDropFactory {
     /// @notice Update the Merkle setter. Can only be called by the current setter
     /// @param _NFT address of the nft contract
     /// @param _merkleSetter address of the new merkleSetter
-    function setMerkleSetter(address _NFT, address _merkleSetter) onlyMerkleSetter(_NFT) external {
+    function setMerkleSetter(address _NFT, address _merkleSetter) external onlyMerkleSetter(_NFT) {
         NFTMerkleSetter[_NFT] = _merkleSetter;
         emit MerkleSetterUpdated(_NFT, _merkleSetter);
     }
@@ -101,10 +90,15 @@ contract MeritNFTDropFactory {
     /// @param _tokenId ID of the token to claim
     /// @param _receiver Receiver of the NFT
     /// @param _proof merkle proof
-    function claim(address _NFT, uint256 _tokenId, address _receiver, bytes32[] calldata _proof) external {
+    function claim(
+        address _NFT,
+        uint256 _tokenId,
+        address _receiver,
+        bytes32[] calldata _proof
+    ) external {
         bytes32 leaf = keccak256(abi.encodePacked(_tokenId, _receiver));
-        
-        if(!MerkleProof.verify(_proof, NFTMerkleTree[_NFT].root, leaf)) {
+
+        if (!MerkleProof.verify(_proof, NFTMerkleTree[_NFT].root, leaf)) {
             revert MerkleProofError();
         }
 
@@ -116,5 +110,4 @@ contract MeritNFTDropFactory {
 
         emit NFTClaimed(_NFT, _tokenId, _receiver);
     }
-
 }

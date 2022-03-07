@@ -16,15 +16,15 @@ contract MeritNFT is ERC721Enumerable, AccessControlEnumerable, IMeritMintableNF
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     string internal baseTokenURI;
 
-    modifier onlyMinter {
-        if(!hasRole(MINTER_ROLE, msg.sender)) {
+    modifier onlyMinter() {
+        if (!hasRole(MINTER_ROLE, msg.sender)) {
             revert OnlyMinterError();
         }
         _;
     }
 
-    modifier onlyAdmin {
-        if(!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
+    modifier onlyAdmin() {
+        if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             revert OnlyAdminError();
         }
         _;
@@ -42,7 +42,6 @@ contract MeritNFT is ERC721Enumerable, AccessControlEnumerable, IMeritMintableNF
         baseTokenURI = _baseTokenURI;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
-
 
     /// @notice Mints an NFT. Can only be called by an address with the minter role and tokenId must be unique
     /// @param _tokenId Id of the token
