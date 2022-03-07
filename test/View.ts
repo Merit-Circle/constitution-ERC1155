@@ -12,33 +12,28 @@ let signers: SignerWithAddress[];
 let NFT: MeritNFT;
 let view: View;
 
-describe("View", function() {
-    before(async() => {
-        [
-            deployer,
-            account1,
-            account2,
-            ...signers
-        ] = await ethers.getSigners();
+describe("View", function () {
+  before(async () => {
+    [deployer, account1, account2, ...signers] = await ethers.getSigners();
 
-        NFT = await (new MeritNFT__factory(deployer)).deploy("TEST", "TEST", "TEST");
-        view = await (new View__factory(deployer)).deploy();
+    NFT = await new MeritNFT__factory(deployer).deploy("TEST", "TEST", "TEST");
+    view = await new View__factory(deployer).deploy();
 
-        const MINTER_ROLE = await NFT.MINTER_ROLE();
-        await NFT.grantRole(MINTER_ROLE, deployer.address);
+    const MINTER_ROLE = await NFT.MINTER_ROLE();
+    await NFT.grantRole(MINTER_ROLE, deployer.address);
 
-        await NFT.mint(0, account1.address);
-        await timeTraveler.snapshot();
+    await NFT.mint(0, account1.address);
+    await timeTraveler.snapshot();
+  });
+
+  beforeEach(async () => {
+    await timeTraveler.revertSnapshot();
+  });
+
+  describe("getNFTsExist", async () => {
+    it("should work", async () => {
+      const result = await view.getNFTsExist(NFT.address, [0, 1]);
+      expect(result).to.eql([true, false]);
     });
-
-    beforeEach(async() => {
-        await timeTraveler.revertSnapshot();
-    });
-
-    describe("getNFTsExist", async() => {
-        it("should work", async() => {
-            const result = await view.getNFTsExist(NFT.address, [0, 1]);
-            expect(result).to.eql([true, false]);
-        });
-    });
+  });
 });
