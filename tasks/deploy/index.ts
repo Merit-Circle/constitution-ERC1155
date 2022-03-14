@@ -1,2 +1,3 @@
 // import "./greeter";
-import "./NFT";
+import "./Collectibles";
+import "./MerkleDrop";
