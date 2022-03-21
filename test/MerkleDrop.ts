@@ -1,12 +1,11 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import hre, { ethers, network } from "hardhat";
+import hre, { ethers } from "hardhat";
 import { Collectibles, MerkleDrop, MerkleDrop__factory, Collectibles__factory } from "../src/types";
 import TimeTraveler from "../utils/TimeTraveler";
 import DropMerkleTree from "../utils/DropMerkleTree";
 import { constants } from "ethers";
 import { ClientFactory } from "./utils/ClientFactory";
-import { ehHolders } from "./__fixtures__/ehHolders";
 
 let deployer: SignerWithAddress;
 let account1: SignerWithAddress;
@@ -21,12 +20,11 @@ const NAME = "NAME";
 const SYMBOL = "SYMBOL";
 const BASE_TOKEN_URI = "https://token-cdn-domain/";
 const IPFS_HASH = "hash";
-const EDENHORDE_ADDRESS = "0x9eEAeCBE2884AA7e82f450E3Fc174F30Fc2a8de3";
 
 const merkleDropRoles = {
   DEFAULT_ADMIN_ROLE: "",
   MERKLE_SETTER_ROLE: "",
-  CLAIMED_SETTER_ROLE: ""
+  CLAIMED_SETTER_ROLE: "",
 };
 
 const nftRoles = {
@@ -75,7 +73,7 @@ describe("MerkleDrop", function () {
 
       // fill dummy merkle tree
       addresses = signers.map(value => value.address);
-      tokenIdsByAddresses = signers.map((value, index) => {
+      tokenIdsByAddresses = signers.map((_value, _index) => {
         // default to minting one of each
         return [1, 1, 1];
       });
@@ -180,7 +178,7 @@ describe("MerkleDrop", function () {
     });
 
     describe("updateClaimedAmount", () => {
-      it("updates claimed amount properly", async() => {
+      it("updates claimed amount properly", async () => {
         const proof = merkleTree.getProofByAddressAndTokenId(signers[0].address, [1, 1, 1]);
 
         await clientFactory.create({
@@ -202,7 +200,7 @@ describe("MerkleDrop", function () {
           "OnlyClaimedSetterError()",
         );
       });
-    })
+    });
 
     describe("claim", async () => {
       it("can claim multiple mintable nfts", async () => {

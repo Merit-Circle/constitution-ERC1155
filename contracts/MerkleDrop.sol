@@ -48,7 +48,7 @@ contract MerkleDrop is AccessControlEnumerable {
         _;
     }
 
-       modifier onlyClaimedSetter() {
+    modifier onlyClaimedSetter() {
         if (!hasRole(CLAIMED_SETTER_ROLE, msg.sender)) {
             revert OnlyClaimedSetterError();
         }

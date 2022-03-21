@@ -4,19 +4,16 @@ import hre, { ethers } from "hardhat";
 import TimeTraveler from "../utils/TimeTraveler";
 
 import { Collectibles, Collectibles__factory } from "../src/types";
-import { link } from "fs";
 
 let deployer: SignerWithAddress;
 let account1: SignerWithAddress;
-let account2: SignerWithAddress;
-let signers: SignerWithAddress[];
 let NFT: Collectibles;
 
 const NAME = "Collectible";
 const SYMBOL = "COL";
 const BASE_TOKEN_URI = "https://token-cdn-domain/";
 
-let timeTraveler = new TimeTraveler(hre.network.provider);
+const timeTraveler = new TimeTraveler(hre.network.provider);
 
 let DEFAULT_ADMIN_ROLE: string;
 let MINTER_ROLE: string;
@@ -24,7 +21,7 @@ let BURNER_ROLE: string;
 
 describe("Collectibles", function () {
   before(async () => {
-    [deployer, account1, account2, ...signers] = await ethers.getSigners();
+    [deployer, account1] = await ethers.getSigners();
 
     NFT = await new Collectibles__factory(deployer).deploy(NAME, SYMBOL, BASE_TOKEN_URI);
 
@@ -77,7 +74,7 @@ describe("Collectibles", function () {
     it("Minting from an address which does not have the minter role should fail", async () => {
       await expect(NFT.mint(account1.address, 1, 10)).to.be.revertedWith("OnlyMinterError()");
     });
-  })
+  });
 
   describe("mintBatch", async () => {
     it("can mint a single nft", async () => {
@@ -147,7 +144,7 @@ describe("Collectibles", function () {
     it("Burning from an address which does not have the minter role should fail", async () => {
       await expect(NFT.burn(account1.address, 1, 10)).to.be.revertedWith("OnlyBurnerError()");
     });
-  })
+  });
 
   describe("burnBatch", () => {
     it("Burn tokenId after minting", async () => {

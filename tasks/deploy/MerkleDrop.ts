@@ -28,7 +28,7 @@ task("deploy:merkledrop").setAction(async (taskArgs, { ethers, run }) => {
   }
 });
 
-task("init:merkledrop").setAction(async (taskArgs, { ethers, run }) => {
+task("init:merkledrop").setAction(async (taskArgs, { ethers }) => {
   const [deployer] = await ethers.getSigners();
 
   const MERKLE_ROOT = "0x3ded3d1ceb248decd827d8f3d82ffddd7d845a3b15b04362d993a1cfd3c61187";

@@ -1,5 +1,4 @@
 // @ts-nocheck
-
 import { ethers } from "ethers";
 
 export class MerkleTree {
@@ -100,9 +99,7 @@ export class MerkleTree {
   }
 
   bufIndexOf(el, arr) {
-    let hash;
-
-    hash = el;
+    const hash = el;
 
     for (let i = 0; i < arr.length; i++) {
       if (hash == arr[i]) {

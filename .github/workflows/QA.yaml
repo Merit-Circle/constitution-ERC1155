@@ -1,0 +1,29 @@
+name: QA
+on: push
+jobs:
+  QA:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+        cache: 'yarn'
+    - name: Install modules
+      run: yarn
+    - name: Run linting
+      run: yarn lint
+    - name: Run compile
+      run: yarn compile
+      env:
+        MNEMONIC: ${{ secrets.MNEMONIC }}
+        INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+        ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+        ETHERSCAN_KEY: ${{ secrets.ETHERSCAN_KEY }}
+    - name: Run tests
+      run: yarn test
+      env:
+        MNEMONIC: ${{ secrets.MNEMONIC }}
+        INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+        ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+        ETHERSCAN_KEY: ${{ secrets.ETHERSCAN_KEY }}

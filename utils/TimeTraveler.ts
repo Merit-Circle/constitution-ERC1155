@@ -1,6 +1,7 @@
 import { EthereumProvider } from "hardhat/types";
 
 class TimeTraveler {
+  // @ts-ignore need any here.
   private snapshotID: any;
   private ethereum: EthereumProvider;
 
