@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.9;
 
-interface ICollectibles {
+interface IConstitution {
     function mintBatch(
         uint256[] memory _tokenTypes,
         uint256[] memory _amounts,
