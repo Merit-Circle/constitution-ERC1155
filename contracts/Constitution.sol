@@ -20,7 +20,10 @@ contract Constitution is ERC1155, AccessControlEnumerable {
     string public symbol;
     string internal baseTokenURI;
 
-    mapping(address => bool) public minted;
+    uint256 public mintCap;
+
+    mapping(address => uint256) public mintedCount;
+    mapping(uint256 => uint256) public mintedCountByTokenId;
 
     event Mint(address indexed to, uint256 indexed tokenId, uint256 amount);
 
@@ -78,15 +81,19 @@ contract Constitution is ERC1155, AccessControlEnumerable {
     }
 
     function mint() public onlyEOA {
-        if (minted[msg.sender]) {
+        if (mintedCount[msg.sender] > 0) {
             revert AlreadyMintedError();
         }
 
-        _mint(msg.sender, 0, 1, "");
+        uint256 tokenId = 0;
+        uint256 amount = 1;
+
+        _mint(msg.sender, tokenId, amount, "");
 
         emit Mint(msg.sender, tokenId, amount);
 
-        minted[msg.sender] = true;
+        mintedCount[msg.sender] += amount;
+        mintedCountByTokenId[tokenId] += amount;
     }
 
     /// @dev Will update the base URL of token's URI
