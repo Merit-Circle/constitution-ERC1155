@@ -22,6 +22,8 @@ contract Constitution is ERC1155, AccessControlEnumerable {
 
     mapping(address => bool) public minted;
 
+    event Mint(address indexed to, uint256 indexed tokenId, uint256 amount);
+
     modifier onlyAdmin() {
         if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             revert OnlyAdminError();
@@ -81,6 +83,8 @@ contract Constitution is ERC1155, AccessControlEnumerable {
         }
 
         _mint(msg.sender, 0, 1, "");
+
+        emit Mint(msg.sender, tokenId, amount);
 
         minted[msg.sender] = true;
     }
