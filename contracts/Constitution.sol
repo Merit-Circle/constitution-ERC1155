@@ -27,6 +27,8 @@ contract Constitution is ERC1155, AccessControlEnumerable {
 
     event Mint(address indexed to, uint256 indexed tokenId, uint256 amount);
 
+    event Mint(address indexed to, uint256 indexed tokenId, uint256 amount);
+
     modifier onlyAdmin() {
         if (!hasRole(DEFAULT_ADMIN_ROLE, msg.sender)) {
             revert OnlyAdminError();
