@@ -91,8 +91,14 @@ describe("Constitution", function () {
   });
 
   describe("onlyEOA", async () => {
-    it("Mint constitution with smart contract should fail", async () => {
-      await expect(new NotEOA__factory(deployer).deploy(NFT.address)).to.be.revertedWith("OnlyEOAError()");
+    it("Mint constitution with smart contract on deployment should fail", async () => {
+      await expect(new NotEOA__factory(deployer).deploy(NFT.address, true)).to.be.revertedWith("OnlyEOAError()");
+    });
+
+    it("Mint constitution with smart contract after deployment should fail", async () => {
+      Attacker = await new NotEOA__factory(deployer).deploy(NFT.address, false);
+
+      await expect(Attacker.mintConstitution(NFT.address)).to.be.revertedWith("OnlyEOAError()");
     });
   });
 });
