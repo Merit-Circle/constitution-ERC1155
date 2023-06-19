@@ -4,10 +4,12 @@ import hre, { ethers } from "hardhat";
 import TimeTraveler from "../utils/TimeTraveler";
 
 import { Constitution, Constitution__factory } from "../src/types";
+import { NotEOA, NotEOA__factory } from "../src/types";
 
 let deployer: SignerWithAddress;
 let account1: SignerWithAddress;
 let NFT: Constitution;
+let Attacker: NotEOA;
 
 const NAME = "Constitution";
 const SYMBOL = "CON";
@@ -85,6 +87,18 @@ describe("Constitution", function () {
 
     it("Setting the BaseURI from an address which does not have the default admin role should fail", async () => {
       await expect(NFT.connect(account1).setURI("fail")).to.be.revertedWith("OnlyUpdaterError()");
+    });
+  });
+
+  describe("onlyEOA", async () => {
+    it("Mint constitution with smart contract on deployment should fail", async () => {
+      await expect(new NotEOA__factory(deployer).deploy(NFT.address, true)).to.be.revertedWith("OnlyEOAError()");
+    });
+
+    it("Mint constitution with smart contract after deployment should fail", async () => {
+      Attacker = await new NotEOA__factory(deployer).deploy(NFT.address, false);
+
+      await expect(Attacker.mintConstitution(NFT.address)).to.be.revertedWith("OnlyEOAError()");
     });
   });
 });
