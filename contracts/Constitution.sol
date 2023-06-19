@@ -64,9 +64,7 @@ contract Constitution is ERC1155, AccessControlEnumerable {
     }
 
     function isEOA(address account) public view returns (bool) {
-        uint256 size;
-        assembly { size := extcodesize(account) }
-        return size == 0;
+        return tx.origin == msg.sender;
     }
 
     /// @notice Signals support for a given interface
