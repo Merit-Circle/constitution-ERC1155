@@ -58,18 +58,18 @@ describe("Constitution", function () {
       expect(await NFT.balanceOf(account1.address, 0)).to.eq(1);
       expect(await NFT.balanceOf(deployer.address, 0)).to.eq(0);
       expect(await NFT.mintedCount(account1.address)).to.eq(1)
-      expect(await NFT.mintedCountByTokenId(0)).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(1);
     });
 
     it("errors if already minted", async () => {
       await NFT.connect(account1).mint();
 
-      expect(await NFT.mintedCountByTokenId(0)).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(1);
 
       await expect(NFT.connect(account1).mint()).to.be.revertedWith("AlreadyMintedError()");
 
       expect(await NFT.balanceOf(account1.address, 0)).to.eq(1);
-      expect(await NFT.mintedCountByTokenId(0)).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(1);
     });
   });
 
