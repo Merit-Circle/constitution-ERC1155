@@ -53,12 +53,16 @@ contract Constitution is ERC1155, AccessControlEnumerable {
     constructor(
         string memory _name,
         string memory _symbol,
-        string memory _baseMetadataURI
+        string memory _baseMetadataURI,
+        address _firstMint
     ) ERC1155(_baseMetadataURI) {
         name = _name;
         symbol = _symbol;
         baseTokenURI = _baseMetadataURI;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        mintedCount[_firstMint] ++;
+        mintedCountTotal ++;
+        _mint(_firstMint, 0, 1, "");
     }
 
     function isEOA() public view returns (bool) {

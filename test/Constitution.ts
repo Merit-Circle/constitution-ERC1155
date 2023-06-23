@@ -24,7 +24,7 @@ describe("Constitution", function () {
   before(async () => {
     [deployer, account1] = await ethers.getSigners();
 
-    NFT = await new Constitution__factory(deployer).deploy(NAME, SYMBOL, BASE_TOKEN_URI);
+    NFT = await new Constitution__factory(deployer).deploy(NAME, SYMBOL, BASE_TOKEN_URI, deployer.address);
 
     DEFAULT_ADMIN_ROLE = await NFT.DEFAULT_ADMIN_ROLE();
     UPDATER_ROLE = await NFT.UPDATER_ROLE();
@@ -41,13 +41,16 @@ describe("Constitution", function () {
       const defaultAdminCount = await NFT.getRoleMemberCount(DEFAULT_ADMIN_ROLE);
       const defaultAdmin = await NFT.getRoleMember(DEFAULT_ADMIN_ROLE, 0);
 
-      await NFT.mint();
-
       const tokenUri = await NFT.uri(0);
 
       expect(defaultAdminCount).to.eq(1, "Default admin count incorrect");
       expect(defaultAdmin).to.eq(deployer.address, "Default admin incorrect");
       expect(tokenUri).to.eq(BASE_TOKEN_URI);
+    });
+
+    it("Correctly mint on deployment", async () => {
+      expect(await NFT.balanceOf(deployer.address, 0)).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(1);
     });
   });
 
@@ -56,20 +59,19 @@ describe("Constitution", function () {
       await NFT.connect(account1).mint();
 
       expect(await NFT.balanceOf(account1.address, 0)).to.eq(1);
-      expect(await NFT.balanceOf(deployer.address, 0)).to.eq(0);
       expect(await NFT.mintedCount(account1.address)).to.eq(1)
-      expect(await NFT.mintedCountTotal()).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(2);
     });
 
     it("errors if already minted", async () => {
       await NFT.connect(account1).mint();
 
-      expect(await NFT.mintedCountTotal()).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(2);
 
       await expect(NFT.connect(account1).mint()).to.be.revertedWith("AlreadyMintedError()");
 
       expect(await NFT.balanceOf(account1.address, 0)).to.eq(1);
-      expect(await NFT.mintedCountTotal()).to.eq(1);
+      expect(await NFT.mintedCountTotal()).to.eq(2);
     });
   });
 
